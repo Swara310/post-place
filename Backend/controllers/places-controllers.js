@@ -5,7 +5,7 @@ const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
 const mongoose = require("mongoose");
-const {cloudinary} = require("../util/cloudinary.js")
+const { cloudinary } = require("../util/cloudinary.js");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -71,16 +71,26 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
+  let result;
+  try {
+    result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "post-place-app",
+    });
+  } catch (err) {
+    const error = new HttpError("Cloudinary upload failed", 500);
+    return next(error);
+  }
+
   const createdPlace = new Place({
     title,
     description,
     address,
     location: coordinates,
-    image: req.file.path,
-    creator:req.userData.userId,
+    image: result.secure_url,
+    creator: req.userData.userId,
   });
 
-  console.log("Uploaded image URL:", req.file.path);
+  console.log("Uploaded image URL:", result.secure_url,);
   let user;
   try {
     user = await User.findById(req.userData.userId);
@@ -189,7 +199,7 @@ const deletePlace = async (req, res, next) => {
 
   const imagePath = place.image;
 
-  const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+  const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
 
   try {
     const sess = await mongoose.startSession();

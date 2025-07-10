@@ -56,11 +56,19 @@ const signup = async (req, res, next) => {
     );
     return next(error);
   }
+  let result;
+  try {
+    result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "post-place-app",
+    });
+  } catch (err) {
+    return next(new HttpError("Cloudinary upload failed", 500));
+  }
 
   const createdUser = new User({
     name,
     email,
-    image: req.file.path,
+    image: result.secure_url,
     password: hashedPassword,
     places: [],
   });
@@ -112,7 +120,7 @@ const login = async (req, res, next) => {
 
   let isValidPassword = false;
   try {
-    isValidPassword = await bcrypt.compare(password,existingUser.password);
+    isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (err) {
     const error = new HttpError(
       "Could not log you in, please check your credentials and try again.",
@@ -145,9 +153,9 @@ const login = async (req, res, next) => {
   }
 
   res.json({
-   userId:existingUser.id,
-   email:existingUser.email,
-   token:token
+    userId: existingUser.id,
+    email: existingUser.email,
+    token: token,
   });
 };
 
