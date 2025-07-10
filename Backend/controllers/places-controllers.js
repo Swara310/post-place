@@ -5,6 +5,7 @@ const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
 const mongoose = require("mongoose");
+const {cloudinary} = require("../util/cloudinary.js")
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -79,6 +80,7 @@ const createPlace = async (req, res, next) => {
     creator:req.userData.userId,
   });
 
+  console.log("Uploaded image URL:", req.file.path);
   let user;
   try {
     user = await User.findById(req.userData.userId);
@@ -187,6 +189,8 @@ const deletePlace = async (req, res, next) => {
 
   const imagePath = place.image;
 
+  const publicId = imageUrl.split('/').slice(-1)[0].split('.')[0];
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -194,6 +198,8 @@ const deletePlace = async (req, res, next) => {
     place.creator.places.pull(place);
     await place.creator.save({ session: sess });
     await sess.commitTransaction();
+
+    await cloudinary.uploader.destroy(`post-place-app/${publicId}`);
   } catch (err) {
     const error = new HttpError(
       "Something went wrong, could not delete  place",
