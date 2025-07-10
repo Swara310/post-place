@@ -199,7 +199,7 @@ const deletePlace = async (req, res, next) => {
 
   const imagePath = place.image;
 
-  const publicId = imageUrl.split("/").slice(-1)[0].split(".")[0];
+  const publicId = imagePath.split("/").slice(-1)[0].split(".")[0];
 
   try {
     const sess = await mongoose.startSession();
@@ -217,9 +217,6 @@ const deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
   res.status(200).json({ message: "Deleted Place" });
 };
 
