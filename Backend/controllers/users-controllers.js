@@ -56,19 +56,15 @@ const signup = async (req, res, next) => {
     );
     return next(error);
   }
-  let result;
-  try {
-    result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "post-place-app",
-    });
-  } catch (err) {
-    return next(new HttpError("Cloudinary upload failed", 500));
-  }
+
+ if (!req.file || !req.file.path) {
+  return next(new HttpError("No image provided or Cloudinary upload failed", 422));
+}
 
   const createdUser = new User({
     name,
     email,
-    image: result.secure_url,
+    image: req.file.path, 
     password: hashedPassword,
     places: [],
   });

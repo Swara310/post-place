@@ -71,26 +71,19 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  let result;
-  try {
-    result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "post-place-app",
-    });
-  } catch (err) {
-    const error = new HttpError("Cloudinary upload failed", 500);
-    return next(error);
-  }
+if (!req.file || !req.file.path) {
+  return next(new HttpError("No image provided or Cloudinary upload failed", 422));
+}
 
   const createdPlace = new Place({
     title,
     description,
     address,
     location: coordinates,
-    image: result.secure_url,
+    image: req.file.path,
     creator: req.userData.userId,
   });
-
-  console.log("Uploaded image URL:", result.secure_url,);
+  console.log("Uploaded image URL:", req.file.path);
   let user;
   try {
     user = await User.findById(req.userData.userId);
