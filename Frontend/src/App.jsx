@@ -6,10 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import Users from "./Users/Pages/Users";
-//import NewPlace from "./Places/Pages/NewPlace";
-// import UserPlaces from "./Places/Pages/UserPlaces";
-// import UpdatePlace from "./Places/Pages/UpdatePlace";
-// import Auth from "./Users/Pages/Auth";
 import MainNavigation from "./Shared/Components/Navigation/MainNavigation";
 import { AuthContext } from "./Shared/Context/Auth-Context";
 import { useAuth } from "./Shared/Hooks/Auth-Hook";
