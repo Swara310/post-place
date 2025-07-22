@@ -57,14 +57,16 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
- if (!req.file || !req.file.path) {
-  return next(new HttpError("No image provided or Cloudinary upload failed", 422));
-}
+  if (!req.file || !req.file.path) {
+    return next(
+      new HttpError("No image provided or Cloudinary upload failed", 422)
+    );
+  }
 
   const createdUser = new User({
     name,
     email,
-    image: req.file.path, 
+    image: req.file.path,
     password: hashedPassword,
     places: [],
   });
